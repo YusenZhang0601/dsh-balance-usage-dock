@@ -1,0 +1,78 @@
+# CI for dsh-balance-usage-dock.
+#
+# No build step: the plugin is plain ESM on the host plus one module-loader
+# bundle in the browser. Every job only checks syntax, runs the offline test
+# suite and enforces the static privacy invariants.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Syntax-check every JS/MJS file
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(git ls-files '*.js' '*.mjs')
+          for file in "${files[@]}"; do
+            echo "node --check $file"
+            node --check "$file"
+          done
+
+      - name: Test (node:test, offline fixtures only)
+        run: node --test test/*.test.mjs
+
+      - name: Privacy gate (forbidden APIs / profile / persistence)
+        run: |
+          set -euo pipefail
+          # Shipped files only: test fixtures and docs may legitimately mention
+          # these names, the .github directory contains this very pattern.
+          mapfile -t files < <(git ls-files '*.js' '*.json' '*.yml' '*.yaml' | grep -vE '^(test|docs|\.github)/' || true)
+          pattern='(localStorage|sessionStorage|indexedDB|document\.cookie|writeFile|appendFile|createWriteStream|storageDomain|getProfile)'
+          status=0
+          for file in "${files[@]}"; do
+            if grep -nE "$pattern" "$file"; then
+              echo "::error file=$file::forbidden API or profile access found"
+              status=1
+            fi
+          done
+          if [ "$status" -ne 0 ]; then
+            echo "Privacy gate failed: remove the forbidden API and update docs/privacy.md."
+            exit 1
+          fi
+          echo "Privacy gate passed (${#files[@]} shipped files)."
+
+      - name: Credential-literal gate
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(git ls-files '*.js' '*.json' '*.yml' '*.yaml' | grep -vE '^(test|docs|\.github)/' || true)
+          pattern='(sk-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16})'
+          if grep -nE "$pattern" "${files[@]}"; then
+            echo "::error::a credential-like literal is committed"
+            exit 1
+          fi
+          echo "Credential-literal gate passed."

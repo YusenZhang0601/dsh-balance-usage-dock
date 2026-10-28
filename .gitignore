@@ -1,0 +1,11 @@
+node_modules/
+.DS_Store
+*.log
+coverage/
+*.tgz
+.env
+.env.*
+.npmrc
+.idea/
+.vscode/
+tmp/

@@ -1,0 +1,68 @@
+{
+  "name": "dsh-balance-usage-dock",
+  "version": "0.2.0",
+  "private": false,
+  "type": "module",
+  "description": "DeepSeek Harness plugin: composer-dock balance that follows the selected provider, cumulative session cost with a per-model breakdown, and a 90-day usage heatmap. No persisted credentials, runtime-fetched pricing.",
+  "author": "TonyRainforest",
+  "homepage": "https://github.com/YusenZhang0601/dsh-balance-usage-dock#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YusenZhang0601/dsh-balance-usage-dock.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YusenZhang0601/dsh-balance-usage-dock/issues"
+  },
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "lib/*.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "docs/*.md",
+    "README.md",
+    "README.zh.md",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "LICENSE",
+    "ATTRIBUTION.md"
+  ],
+  "scripts": {
+    "test": "node --test test",
+    "check": "node scripts/check.mjs"
+  },
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": []
+    }
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "balance",
+    "usage",
+    "heatmap",
+    "llm"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,45 @@
+# Bundle patch for dsh-balance-usage-dock.
+# Every field is optional; omitted fields keep the defaults documented in docs/configuration.md.
+- insert:
+    - id: balance-usage-dock
+      name: dsh-balance-usage-dock
+      config:
+        refreshSeconds: 60
+        statsDays: 90
+        statsSessionLimit: 200
+        statsCacheSec: 300
+        peakTimeZone: Asia/Shanghai
+        statsTimeZone: null
+        holidays: []
+        peakWindows:
+          - { start: 9, end: 12 }
+          - { start: 14, end: 18 }
+        peakWeekdays: [1, 2, 3, 4, 5]
+        pricingSources:
+          - provider-catalog
+          - official-page
+          - models.dev
+        officialPricingUrls:
+          - https://api-docs.deepseek.com/zh-cn/quick_start/pricing/
+          - https://api-docs.deepseek.com/quick_start/pricing/
+        modelsDevUrl: https://models.dev/api.json
+        pricingTtlSec: 43200
+        priceOverrides: {}
+        modelAliases: {}
+        extraPriceCatalogs: []
+        providers: []
+        trustedHosts: []
+        requestTimeoutMs: 15000
+        peerTimeoutMs: 12000
+        overviewCacheSec: 15
+        sessionCacheSec: 1
+        warmup: true
+        warmupDelayMs: 1500
+        clientRefresh:
+          overviewSec: 60
+          sessionRunningSec: 3
+          sessionIdleSec: 15
+          statsSec: 60
+        clientRetry:
+          maxRetries: 2
+          requestTimeoutMs: 20000

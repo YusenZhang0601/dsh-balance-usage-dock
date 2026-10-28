@@ -1,0 +1,35 @@
+# Publish dsh-balance-usage-dock to npm.
+#
+# Manual only: configure an npm automation token as the repository secret
+# NPM_TOKEN (Settings -> Secrets and variables -> Actions), then run this
+# workflow. Publishing from a release tag is intentionally left to the
+# maintainer so a GitHub release never fails without npm credentials.
+name: Publish to npm
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Test before publishing
+        run: node --test test/*.test.mjs
+
+      - name: Publish
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
